@@ -22,7 +22,7 @@ class TSyncSage {
 	 * Récupération de la liste des produit dans la base Sage 
 	 */
 	function get_product_from_sage() {
-		$sql = 'SELECT TOP 10';
+		$sql = 'SELECT';
 		$sql.= $this->sagedb->Get_column_list('F_ARTICLE', 'a');
 		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTENUMREF', 'ae');
 		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTGAMME', 'ag1');
@@ -31,8 +31,9 @@ class TSyncSage {
 		$sql.= ' LEFT JOIN F_ARTENUMREF ae ON (ae.AR_Ref = a.AR_Ref)';
 		$sql.= ' LEFT JOIN F_ARTGAMME ag1 ON (ag1.AG_No = ae.AG_No1)';
 		$sql.= ' LEFT JOIN F_ARTGAMME ag2 ON (ag2.AG_No = ae.AG_No2)';
+		$sql.= ' WHERE a.AR_Ref = \'FOND_ROSES_BOBINE\'';
 		
-		return $this->sagedb->ExecuteAsArray($sql,array());
+		return $this->sagedb->ExecuteAsArray($sql,array(),PDO::FETCH_ASSOC);
 	}
 	
 	/*
@@ -75,7 +76,7 @@ class TSyncSage {
 	}
 	
 	function build_product_label($dataline) {
-		$label = $dataline['a.AR_Ref'];
+		$label = $dataline['a.AR_Design'];
 		if(!empty($dataline['ag1.EG_Enumere'])) {
 			$label.= ' - '.$dataline['ag1.EG_Enumere'];
 		}
