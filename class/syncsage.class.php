@@ -10,7 +10,7 @@ class TSyncSage {
 		$usr = $conf->global->SYNCSAGE_USR;
 		$pwd = $conf->global->SYNCSAGE_PWD;
 		
-		$this->sagedb = new TPDOdb('odbc', $dsn, $usr, $pwd);
+		$this->sagedb = new TPDOdb('sqlsrv', $dsn, $usr, $pwd);
 	}
 	
 	/***************************************************************************************
