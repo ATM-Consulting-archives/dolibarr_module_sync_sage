@@ -22,14 +22,17 @@ class TSyncSage {
 	 * Récupération de la liste des produit dans la base Sage 
 	 */
 	function get_product_from_sage() {
-		$sql = 'SELECT a.*,ae.*,ag1.*,ag2.*';
+		$sql = 'SELECT TOP 10';
+		$sql.= $this->sagedb->Get_column_list('[POLYPAP_DOLIBARR].[dbo].[F_ARTICLE]', 'a');
+		$sql.= ', ' . $this->sagedb->Get_column_list('[POLYPAP_DOLIBARR].[dbo].[F_ARTENUMREF]', 'ae');
+		$sql.= ', ' . $this->sagedb->Get_column_list('[POLYPAP_DOLIBARR].[dbo].[F_ARTGAMME]', 'ag1');
+		$sql.= ', ' . $this->sagedb->Get_column_list('[POLYPAP_DOLIBARR].[dbo].[F_ARTGAMME]', 'ag2');
 		$sql.= ' FROM [POLYPAP_DOLIBARR].[dbo].[F_ARTICLE] a';
 		$sql.= ' LEFT JOIN [POLYPAP_DOLIBARR].[dbo].[F_ARTENUMREF] ae ON (ae.AR_Ref = a.AR_Ref)';
 		$sql.= ' LEFT JOIN [POLYPAP_DOLIBARR].[dbo].[F_ARTGAMME] ag1 ON (ag1.AG_No = ae.AG_No1)';
 		$sql.= ' LEFT JOIN [POLYPAP_DOLIBARR].[dbo].[F_ARTGAMME] ag2 ON (ag2.AG_No = ae.AG_No2)';
-		$sql.= ' LIMIT 10';
 		
-		return $this->sagedb->ExecuteAsArray($sql,array(),PDO::FETCH_ASSOC);
+		return $this->sagedb->ExecuteAsArray($sql,array());
 	}
 	
 	/*
