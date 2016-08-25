@@ -27,7 +27,7 @@ class TSyncSage {
 		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTENUMREF', 'ae');
 		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTGAMME', 'ag1');
 		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTGAMME', 'ag2');
-		$sql.= ' FROM F_ARTICLE] a';
+		$sql.= ' FROM F_ARTICLE a';
 		$sql.= ' LEFT JOIN F_ARTENUMREF ae ON (ae.AR_Ref = a.AR_Ref)';
 		$sql.= ' LEFT JOIN F_ARTGAMME ag1 ON (ag1.AG_No = ae.AG_No1)';
 		$sql.= ' LEFT JOIN F_ARTGAMME ag2 ON (ag2.AG_No = ae.AG_No2)';
@@ -63,24 +63,24 @@ class TSyncSage {
 	 * Construction d'une référence unique pour Dolibarr dans le cas d'une utilisation de gamme dans Sage
 	 */
 	function build_product_ref($dataline) {
-		$ref = $dataline['AR_Ref'];
-		if(!empty($dataline['AG_No1'])) {
-			$ref.= '_'.$dataline['AG_No1'];
+		$ref = $dataline['a.AR_Ref'];
+		if(!empty($dataline['ae.AG_No1'])) {
+			$ref.= '_'.$dataline['ae.AG_No1'];
 		}
-		if(!empty($dataline['AG_No2'])) {
-			$ref.= '_'.$dataline['AG_No2'];
+		if(!empty($dataline['ae.AG_No2'])) {
+			$ref.= '_'.$dataline['ae.AG_No2'];
 		}
 		
 		return $ref;
 	}
 	
 	function build_product_label($dataline) {
-		$label = $dataline['AR_Ref'];
-		if(!empty($dataline['EG_Enumere'])) {
-			$label.= ' - '.$dataline['EG_Enumere'];
+		$label = $dataline['a.AR_Ref'];
+		if(!empty($dataline['ag1.EG_Enumere'])) {
+			$label.= ' - '.$dataline['ag1.EG_Enumere'];
 		}
-		if(!empty($dataline['EG_Enumere'])) {
-			$label.= ' - '.$dataline['EG_Enumere'];
+		if(!empty($dataline['ag2.EG_Enumere'])) {
+			$label.= ' - '.$dataline['ag2.EG_Enumere'];
 		}
 		
 		return $label;

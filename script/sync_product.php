@@ -12,9 +12,10 @@ $TProduct = $sync->get_product_from_sage();
 
 foreach ($TProduct as $dataline) {
 	pre($dataline,true);
-	/*$data = array(
+	$data = array(
 		'ref'				=> $sync->build_product_ref($dataline)
 		,'label'			=> $sync->build_product_label($dataline)
 		,'barcode'			=> $dataline['AE_CodeBarre']
-	);*/
+	);
+	pre($data,true);
 }
