@@ -7,6 +7,7 @@ require('../config.php');
 dol_include_once('/syncsage/class/syncsage.class.php');
 
 $sync = new TSyncSage();
+$sync->sagedb->debug = true;
 $TProduct = $sync->get_product_from_sage();
 
 foreach ($TProduct as $dataline) {

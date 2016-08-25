@@ -23,14 +23,14 @@ class TSyncSage {
 	 */
 	function get_product_from_sage() {
 		$sql = 'SELECT TOP 10';
-		$sql.= $this->sagedb->Get_column_list('[POLYPAP_DOLIBARR].[dbo].[F_ARTICLE]', 'a');
-		$sql.= ', ' . $this->sagedb->Get_column_list('[POLYPAP_DOLIBARR].[dbo].[F_ARTENUMREF]', 'ae');
-		$sql.= ', ' . $this->sagedb->Get_column_list('[POLYPAP_DOLIBARR].[dbo].[F_ARTGAMME]', 'ag1');
-		$sql.= ', ' . $this->sagedb->Get_column_list('[POLYPAP_DOLIBARR].[dbo].[F_ARTGAMME]', 'ag2');
-		$sql.= ' FROM [POLYPAP_DOLIBARR].[dbo].[F_ARTICLE] a';
-		$sql.= ' LEFT JOIN [POLYPAP_DOLIBARR].[dbo].[F_ARTENUMREF] ae ON (ae.AR_Ref = a.AR_Ref)';
-		$sql.= ' LEFT JOIN [POLYPAP_DOLIBARR].[dbo].[F_ARTGAMME] ag1 ON (ag1.AG_No = ae.AG_No1)';
-		$sql.= ' LEFT JOIN [POLYPAP_DOLIBARR].[dbo].[F_ARTGAMME] ag2 ON (ag2.AG_No = ae.AG_No2)';
+		$sql.= $this->sagedb->Get_column_list('F_ARTICLE', 'a');
+		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTENUMREF', 'ae');
+		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTGAMME', 'ag1');
+		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTGAMME', 'ag2');
+		$sql.= ' FROM F_ARTICLE] a';
+		$sql.= ' LEFT JOIN F_ARTENUMREF ae ON (ae.AR_Ref = a.AR_Ref)';
+		$sql.= ' LEFT JOIN F_ARTGAMME ag1 ON (ag1.AG_No = ae.AG_No1)';
+		$sql.= ' LEFT JOIN F_ARTGAMME ag2 ON (ag2.AG_No = ae.AG_No2)';
 		
 		return $this->sagedb->ExecuteAsArray($sql,array());
 	}
