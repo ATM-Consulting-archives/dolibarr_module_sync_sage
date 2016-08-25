@@ -22,7 +22,7 @@ class TSyncSage {
 	 * Récupération de la liste des produit dans la base Sage 
 	 */
 	function get_product_from_sage() {
-		$sql = 'SELECT';
+		$sql = 'SELECT ';
 		$sql.= $this->sagedb->Get_column_list('F_ARTICLE', 'a');
 		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTENUMREF', 'ae');
 		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTGAMME', 'ag1');

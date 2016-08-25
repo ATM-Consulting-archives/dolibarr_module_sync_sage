@@ -16,7 +16,10 @@ foreach ($TProduct as $dataline) {
 	$data = array(
 		'ref'				=> $sync->build_product_ref($dataline)
 		,'label'			=> $sync->build_product_label($dataline)
-		,'barcode'			=> $dataline['AE_CodeBarre']
+		,'barcode'			=> $dataline['ae.AE_CodeBarre']
+		,'type'				=> 0
+		,'status'			=> 1
+		,'status_buy'		=> 1
 	);
 	pre($data,true);
 	$sync->create_product_in_dolibarr($data);
