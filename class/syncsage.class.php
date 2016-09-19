@@ -17,7 +17,35 @@ class TSyncSage {
 	/***************************************************************************************
 	 * Fonctions concernant les produits
 	 * - Synchro Sage => Dolibarr avec création / maj des produits
+	 * - Synchro Sage => Dolibarr avec création des famille de produit
 	 ***************************************************************************************/
+	/*
+	 * Fonction générale de synchro catégorie
+	 */
+	function sync_category_from_sage() {
+		$sql = $this->get_sql_category_sage();
+		$this->sagedb->Execute($sql);
+		
+		while($dataline = $this->sagedb->Get_line(PDO::FETCH_ASSOC)) {
+			$data = $this->construct_array_data('category', $dataline);
+			$this->create_category_in_dolibarr($data);
+		}
+	}
+	
+	/*
+	 * Construction de la requête SQL pour récupérer les produits dans Sage 
+	 */
+	function get_sql_category_sage() {
+		global $conf;
+		
+		$sql = 'SELECT ';
+		$sql.= $this->sagedb->Get_column_list('F_FAMILLE', 'f');
+		$sql.= ' FROM F_FAMILLE f';
+		$sql.= ' WHERE 1 = 1';
+		
+		return $sql;
+	}
+	
 	/*
 	 * Fonction générale de synchro produit
 	 */
@@ -26,7 +54,7 @@ class TSyncSage {
 		$this->sagedb->Execute($sql);
 		
 		while($dataline = $this->sagedb->Get_line(PDO::FETCH_ASSOC)) {
-			$data = $this->construct_array_data($dataline);
+			$data = $this->construct_array_data('product', $dataline);
 			$this->create_product_in_dolibarr($data);
 		}
 	}
@@ -52,17 +80,36 @@ class TSyncSage {
 	}
 	
 	/*
-	 * Construction du tableau contenant les données d'un produit
+	 * Construction du tableau contenant les données
 	 */
-	function construct_array_data($dataline) {
-		$data = array(
-			'ref'				=> $this->build_product_ref($dataline)
-			,'label'			=> $this->build_product_label($dataline)
-			,'barcode'			=> $dataline['ae.AE_CodeBarre']
-			,'type'				=> 0
-			,'status'			=> 1
-			,'status_buy'		=> 1
-		);
+	function construct_array_data($type, $dataline) {
+		switch ($type) {
+			case 'product':
+				
+				$data = array(
+					'ref'				=> $this->build_product_ref($dataline)
+					,'label'			=> $this->build_product_label($dataline)
+					,'barcode'			=> $dataline['ae.AE_CodeBarre']
+					,'type'				=> 0
+					,'status'			=> 1
+					,'status_buy'		=> 1
+				);
+				
+				break;
+			
+			case 'category':
+				
+				$data = array(
+					'label'			=> $dataline['ae.AE_CodeBarre']
+				);
+				
+				break;
+			
+			default:
+				$data = array();
+				break;
+		}
+		
 		
 		return $data;
 	}
@@ -91,6 +138,8 @@ class TSyncSage {
 		} else if($this->debug) {
 			echo '<br>OK '.$p->ref;
 		}
+		
+		return $res;
 	}
 	
 	/*
@@ -118,5 +167,33 @@ class TSyncSage {
 		}
 		
 		return $label;
+	}
+	
+	/*
+	 * Création d'une catégorie dans Dolibarr
+	 */
+	function create_category_in_dolibarr($data) {
+		global $db,$user;
+		
+		$cat = new Categorie($db);
+		$cat->fetch(0,$data['ref']);
+		
+		foreach($data as $k => $v) {
+			$cat->{$k} = $v;
+		}
+		
+		if($cat->id > 0) {
+			$res = $cat->update($cat->id, $user);
+		} else {
+			$res = $cat->create($user);
+		}
+		
+		if($res < 0) {
+			echo '<br>ERR '.$cat->ref.' : '.$cat->error;
+		} else if($this->debug) {
+			echo '<br>OK '.$cat->ref;
+		}
+		
+		return $res;
 	}
 }
