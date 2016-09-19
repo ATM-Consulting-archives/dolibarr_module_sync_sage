@@ -13,4 +13,6 @@ $sync = new TSyncSage();
 $sync->sagedb->debug = true;
 $sync->debug = true;
 
+// On synchronise d'abord les catégorie de produit
+$sync->sync_category_from_sage();
 $sync->sync_product_from_sage();

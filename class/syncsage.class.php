@@ -4,6 +4,8 @@ class TSyncSage {
 	var $sagedb;
 	var $debug = false;
 	
+	var $TProductCategory = array();
+	
 	function __construct() {
 		global $conf;
 		
@@ -141,6 +143,11 @@ class TSyncSage {
 			echo '<br>OK '.$p->ref;
 		}
 		
+		// Ajout de la catégorie de produit
+		if(!empty($this->TProductCategory[$data['category']])) {
+			$this->TProductCategory[$data['category']]->add_type($p, 'product');
+		}
+		
 		return $res;
 	}
 	
@@ -191,10 +198,12 @@ class TSyncSage {
 		}
 		
 		if($res < 0) {
-			echo '<br>ERR '.$cat->ref.' : '.$cat->error;
+			echo '<br>ERR '.$cat->label.' : '.$cat->error;
 		} else if($this->debug) {
-			echo '<br>OK '.$cat->ref;
+			echo '<br>OK '.$cat->label;
 		}
+		
+		$this->TProductCategory[$cat->label] = &$cat;
 		
 		return $res;
 	}
