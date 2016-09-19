@@ -96,6 +96,7 @@ class TSyncSage {
 					,'status'			=> ($dataline['a.AR_Sommeil'] || $dataline['ae.AE_Sommeil']) ? 0 : 1
 					,'status_buy'		=> ($dataline['a.AR_Sommeil'] || $dataline['ae.AE_Sommeil']) ? 0 : 1
 					,'cost_price'		=> $dataline['ae.AE_PrixAch']
+					,'category'			=> $dataline['a.FA_CodeFamille']
 				);
 				
 				break;
