@@ -93,8 +93,9 @@ class TSyncSage {
 					,'label'			=> $this->build_product_label($dataline)
 					,'barcode'			=> $dataline['ae.AE_CodeBarre']
 					,'type'				=> 0
-					,'status'			=> 1
-					,'status_buy'		=> 1
+					,'status'			=> ($dataline['a.AR_Sommeil'] || $dataline['ae.AE_Sommeil']) ? 0 : 1
+					,'status_buy'		=> ($dataline['a.AR_Sommeil'] || $dataline['ae.AE_Sommeil']) ? 0 : 1
+					,'cost_price'		=> $dataline['ae.AE_PrixAch']
 				);
 				
 				break;
@@ -139,7 +140,12 @@ class TSyncSage {
 		
 		if($res < 0) {
 			echo '<br>ERR '.$p->ref.' : '.$p->error;
-		} else if($this->debug) {
+			return $res;
+		} else {
+			$object->setValueFrom('cost_price', price2num($data['cost_price']));
+		}
+		
+		if($this->debug) {
 			echo '<br>OK '.$p->ref;
 		}
 		
