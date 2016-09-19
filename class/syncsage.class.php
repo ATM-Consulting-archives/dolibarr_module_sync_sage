@@ -25,7 +25,7 @@ class TSyncSage {
 		$sql = $this->get_sql_product_sage();
 		$this->sagedb->Execute($sql);
 		
-		while($dataline = $this->sagedb->Get_line()) {
+		while($dataline = $this->sagedb->Get_line(PDO::FETCH_ASSOC)) {
 			$data = $this->construct_array_data($dataline);
 			$this->create_product_in_dolibarr($data);
 		}
