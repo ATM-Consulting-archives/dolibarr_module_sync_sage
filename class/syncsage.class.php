@@ -2,6 +2,7 @@
 
 class TSyncSage {
 	var $sagedb;
+	var $debug = false;
 	
 	function __construct() {
 		global $conf;
@@ -17,11 +18,25 @@ class TSyncSage {
 	 * Fonctions concernant les produits
 	 * - Synchro Sage => Dolibarr avec création / maj des produits
 	 ***************************************************************************************/
+	/*
+	 * Fonction générale de synchro produit
+	 */
+	function sync_product_from_sage() {
+		$sql = $this->get_sql_product_sage();
+		$this->sagedb->Execute($sql);
+		
+		while($dataline = $this->sagedb->Get_line()) {
+			$data = $this->construct_array_data($dataline);
+			$this->create_product_in_dolibarr($data);
+		}
+	}
 	
 	/*
-	 * Récupération de la liste des produit dans la base Sage 
+	 * Construction de la requête SQL pour récupérer les produits dans Sage 
 	 */
-	function get_product_from_sage() {
+	function get_sql_product_sage() {
+		global $conf;
+		
 		$sql = 'SELECT ';
 		$sql.= $this->sagedb->Get_column_list('F_ARTICLE', 'a');
 		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTENUMREF', 'ae');
@@ -33,7 +48,23 @@ class TSyncSage {
 		$sql.= ' LEFT JOIN F_ARTGAMME ag2 ON (ag2.AG_No = ae.AG_No2)';
 		$sql.= ' WHERE 1 = 1';
 		
-		return $this->sagedb->ExecuteAsArray($sql,array(),PDO::FETCH_ASSOC);
+		return $sql;
+	}
+	
+	/*
+	 * Construction du tableau contenant les données d'un produit
+	 */
+	function construct_array_data($dataline) {
+		$data = array(
+			'ref'				=> $this->build_product_ref($dataline)
+			,'label'			=> $this->build_product_label($dataline)
+			,'barcode'			=> $dataline['ae.AE_CodeBarre']
+			,'type'				=> 0
+			,'status'			=> 1
+			,'status_buy'		=> 1
+		);
+		
+		return $data;
 	}
 	
 	/*
@@ -56,7 +87,9 @@ class TSyncSage {
 		}
 		
 		if($res < 0) {
-			echo '<br>ERR '.$p->error;
+			echo '<br>ERR '.$p->ref.' : '.$p->error;
+		} else if($this->debug) {
+			echo '<br>OK '.$p->ref;
 		}
 	}
 	
