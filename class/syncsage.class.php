@@ -198,7 +198,7 @@ class TSyncSage {
 		}
 		
 		if($cat->id > 0) {
-			$res = $cat->update($cat->id, $user);
+			$res = $cat->update($user);
 		} else {
 			$res = $cat->create($user);
 		}
