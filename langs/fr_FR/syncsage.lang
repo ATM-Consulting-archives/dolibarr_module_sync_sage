@@ -5,3 +5,8 @@ ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.
 
 SyncSageSetup = Configuration du module de synchronisation Sage
 SyncSageAbout = A propos du module de synchronisation Sage
+
+# ADMIN
+SQLServerDSN = DSN du serveur SQL
+SQLServerDatabaseUSR = Utilisateur pour connexion à la base de données
+SQLServerDatabasePWD = Mot de passe pour connexion à la base de données
