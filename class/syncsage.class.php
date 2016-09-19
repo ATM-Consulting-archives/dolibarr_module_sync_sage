@@ -100,7 +100,8 @@ class TSyncSage {
 			case 'category':
 				
 				$data = array(
-					'label'			=> $dataline['ae.AE_CodeBarre']
+					'ref'			=> $dataline['f.FA_CodeFamille']
+					,'label'		=> $dataline['f.FA_Intitule']
 				);
 				
 				break;
