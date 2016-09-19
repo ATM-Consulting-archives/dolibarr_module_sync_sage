@@ -100,8 +100,9 @@ class TSyncSage {
 			case 'category':
 				
 				$data = array(
-					'ref'			=> $dataline['f.FA_CodeFamille']
-					,'label'		=> $dataline['f.FA_Intitule']
+					'label'			=> $dataline['f.FA_CodeFamille']
+					,'description'	=> $dataline['f.FA_Intitule']
+					,'type'			=> 0
 				);
 				
 				break;
@@ -177,7 +178,7 @@ class TSyncSage {
 		global $db,$user;
 		
 		$cat = new Categorie($db);
-		$cat->fetch(0,$data['ref']);
+		$cat->fetch(0,$data['label']);
 		
 		foreach($data as $k => $v) {
 			$cat->{$k} = $v;
