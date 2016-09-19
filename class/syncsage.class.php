@@ -142,7 +142,7 @@ class TSyncSage {
 			echo '<br>ERR '.$p->ref.' : '.$p->error;
 			return $res;
 		} else {
-			$object->setValueFrom('cost_price', price2num($data['cost_price']));
+			$p->setValueFrom('cost_price', price2num($data['cost_price']));
 		}
 		
 		if($this->debug) {
