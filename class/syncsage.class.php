@@ -166,7 +166,7 @@ class TSyncSage {
 		}
 		
 		if($this->debug) {
-			echo '<br>OK '.$p->ref;
+			echo '<br>OK '.$p->ref.' - '.$p->label;
 		}
 		
 		// Ajout de la catégorie de produit
@@ -201,7 +201,7 @@ class TSyncSage {
 			$label.= ' - '.$dataline['ag2.EG_Enumere'];
 		}
 		
-		return $label;
+		return utf8_encode($label);
 	}
 	
 	/*
