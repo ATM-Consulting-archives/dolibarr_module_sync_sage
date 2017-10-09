@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 class TSyncSage {
 	var $sagedb;
@@ -77,7 +77,25 @@ class TSyncSage {
 		$sql.= ' LEFT JOIN F_ARTGAMME ag1 ON (ag1.AG_No = ae.AG_No1)';
 		$sql.= ' LEFT JOIN F_ARTGAMME ag2 ON (ag2.AG_No = ae.AG_No2)';
 		$sql.= ' WHERE 1 = 1';
-		
+		$sql.= " AND a.FA_CodeFamille IN ('BOUQUETTO',
+'DECOBULLE',
+'POLYIMPRIM',
+'KRAFTBLPER',
+'KRAFTBRPER',
+'POLYIMPRIM',
+'POLYPERSO',
+'KRAFTBLANC',
+'MOUSSELINE',
+'OPALINE',
+'RUBANS',
+'KRAFT',
+'NONTISSE',
+'POLYPRO',
+'IMPRNUM',
+'PORTAGE',
+'RESERVEEAU',
+'MATPREM')";
+
 		return $sql;
 	}
 	
@@ -97,6 +115,7 @@ class TSyncSage {
 					,'status_buy'		=> ($dataline['a.AR_Sommeil'] || $dataline['ae.AE_Sommeil']) ? 0 : 1
 					,'cost_price'		=> $dataline['ae.AE_PrixAch']
 					,'category'			=> $dataline['a.FA_CodeFamille']
+					,'array_options'	=> array('options_origine' => $dataline['a.ORIGINE'])
 				);
 				
 				break;
