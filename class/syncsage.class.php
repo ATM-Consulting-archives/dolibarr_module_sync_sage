@@ -81,6 +81,28 @@ class TSyncSage {
 		return $sql;
 	}
 	
+	function import_sorties_stock() {
+		$sql = $this->get_sql_import_sorties_stock();
+		$this->sagedb->Execute($sql);
+		
+		while($dataline = $this->sagedb->Get_line(PDO::FETCH_ASSOC)) {
+			$data = $this->construct_array_data('sortie_stock', $dataline);
+			$this->add_sortie_stock_in_dolibarr($data);
+		}
+		
+	}
+	
+	function get_sql_import_sorties_stock() {
+		
+		$sql = 'SELECT l.AR_Ref, l.AG_No1, l.AG_No2, l.DL_QteBL';
+		$sql.= ' FROM F_DOCLIGNE l';
+		$sql.= " WHERE DO_Date LIKE '".date('Ymd')."%'"; // En SQL Server la date doit être entourée par des quotes
+		$sql.= ' AND Do_Type = 21'; // 321 = Lignes de mouvements de sorties de stock
+		
+		return $sql;
+		
+	}
+	
 	/*
 	 * Construction du tableau contenant les données
 	 */
@@ -111,6 +133,15 @@ class TSyncSage {
 				
 				break;
 			
+			case 'sortie_stock':
+				
+				$data = array(
+					'ref'			=> $this->build_product_ref($dataline, 'l', 'l')
+					,'qty'			=> $dataline['l.DL_QteBL']
+				);
+				
+				break;
+				
 			default:
 				$data = array();
 				break;
@@ -161,13 +192,13 @@ class TSyncSage {
 	/*
 	 * Construction d'une référence unique pour Dolibarr dans le cas d'une utilisation de gamme dans Sage
 	 */
-	function build_product_ref($dataline) {
-		$ref = $dataline['a.AR_Ref'];
-		if(!empty($dataline['ae.AG_No1'])) {
-			$ref.= '_'.$dataline['ae.AG_No1'];
+	function build_product_ref($dataline, $table1='a', $table2='ae') {
+		$ref = $dataline[$table1.'.AR_Ref'];
+		if(!empty($dataline[$table2.'.AG_No1'])) {
+			$ref.= '_'.$dataline[$table2.'.AG_No1'];
 		}
-		if(!empty($dataline['ae.AG_No2'])) {
-			$ref.= '_'.$dataline['ae.AG_No2'];
+		if(!empty($dataline[$table2.'.AG_No2'])) {
+			$ref.= '_'.$dataline[$table2.'.AG_No2'];
 		}
 		
 		return $ref;
@@ -214,4 +245,9 @@ class TSyncSage {
 		
 		return $res;
 	}
+	
+	function add_sortie_stock_in_dolibarr(&$data) {
+		var_dump($data);
+	}
+	
 }
