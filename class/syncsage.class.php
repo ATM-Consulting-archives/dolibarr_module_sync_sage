@@ -96,7 +96,7 @@ class TSyncSage {
 		
 		$sql = 'SELECT l.AR_Ref, l.AG_No1, l.AG_No2, l.DL_QteBL';
 		$sql.= ' FROM F_DOCLIGNE l';
-		$sql.= " WHERE DO_Date LIKE '".date('Ymd')."%'"; // En SQL Server la date doit être entourée par des quotes
+		$sql.= " WHERE DO_Date = '".date('Ymd')."'"; // En SQL Server la date doit être entourée par des quotes
 		$sql.= ' AND Do_Type = 21'; // 321 = Lignes de mouvements de sorties de stock
 		
 		return $sql;
@@ -192,13 +192,13 @@ class TSyncSage {
 	/*
 	 * Construction d'une référence unique pour Dolibarr dans le cas d'une utilisation de gamme dans Sage
 	 */
-	function build_product_ref($dataline, $table1='a', $table2='ae') {
-		$ref = $dataline[$table1.'.AR_Ref'];
-		if(!empty($dataline[$table2.'.AG_No1'])) {
-			$ref.= '_'.$dataline[$table2.'.AG_No1'];
+	function build_product_ref($dataline, $table1='a.', $table2='ae.') {
+		$ref = $dataline[$table1.'AR_Ref'];
+		if(!empty($dataline[$table2.'AG_No1'])) {
+			$ref.= '_'.$dataline[$table2.'AG_No1'];
 		}
-		if(!empty($dataline[$table2.'.AG_No2'])) {
-			$ref.= '_'.$dataline[$table2.'.AG_No2'];
+		if(!empty($dataline[$table2.'AG_No2'])) {
+			$ref.= '_'.$dataline[$table2.'AG_No2'];
 		}
 		
 		return $ref;
