@@ -247,7 +247,23 @@ class TSyncSage {
 	}
 	
 	function add_sortie_stock_in_dolibarr(&$data) {
-		var_dump($data);
+		
+		global $user, $langs;
+		
+		$product = new Product($db);
+		if($product->fetch('', $data['ref']) > 0) {
+			$result = $product->correct_stock(
+							$user,
+							$id_entrepot,
+							$data['qty'],
+							1, // Suppression
+							$langs->trans('SyncSageLabelMvt', $product->ref, date('d/m/Y')),
+							0, // TODO quel Tarif ?
+							''
+						);
+		}
+		
+		var_dump($result);
 	}
 	
 }
