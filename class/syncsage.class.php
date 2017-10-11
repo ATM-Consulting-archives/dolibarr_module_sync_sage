@@ -97,7 +97,7 @@ class TSyncSage {
 		$sql = 'SELECT l.AR_Ref, l.AG_No1, l.AG_No2, l.DL_QteBL';
 		$sql.= ' FROM F_DOCLIGNE l';
 		$sql.= " WHERE DO_Date = '".date('Ymd')."'"; // En SQL Server la date doit être entourée par des quotes
-		$sql.= ' AND Do_Type = 21'; // 321 = Lignes de mouvements de sorties de stock
+		$sql.= ' AND Do_Type = 21'; // 21 = Lignes de mouvements de sorties de stock
 		
 		return $sql;
 		
@@ -251,19 +251,29 @@ class TSyncSage {
 		global $db, $user, $langs;
 		
 		$product = new Product($db);
-		if($product->fetch('', $data['ref']) > 0) {
+		$entrepot_polypap = new Entrepot($db);
+		if($product->fetch('', $data['ref']) > 0 && $entrepot_polypap->fetch('', 'POLYPAP')) {
+			
 			$result = $product->correct_stock(
 							$user,
-							$id_entrepot,
+							$entrepot_polypap->id,
 							$data['qty'],
 							1, // Suppression
-							$langs->trans('SyncSageLabelMvt', $product->ref, date('d/m/Y')),
+							$langs->trans('SyncSageLabelMvtDel', date('d/m/Y')),
 							0, // TODO quel Tarif ?
 							''
 						);
+			if($result <= 0){
+				echo 'Erreur mouvement stock produit '.$data['ref'].', entrepot '.$entrepot_polypap->libelle.'<br />';
+				return 0;
+			}
+		} else {
+			echo 'Erreur fetch produit ou entrepot, prod id = '.(int)$product->id.', entrepot id = '.(int)$entrepot_polypap->id.'<br />';
+			return 0;
 		}
 		
-		var_dump($result);
+		print 'Sortie de stock Sage produit '.$data['ref'].', entrepot id = '.(int)$entrepot_polypap->id.'<br />';
+		return 1;
 	}
 	
 }
