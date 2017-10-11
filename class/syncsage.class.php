@@ -250,6 +250,8 @@ class TSyncSage {
 		
 		global $db, $user, $langs;
 		
+		$langs->load('syncsage@syncsage');
+		
 		$product = new Product($db);
 		$entrepot_polypap = new Entrepot($db);
 		if($product->fetch('', $data['ref']) > 0 && $entrepot_polypap->fetch('', 'POLYPAP')) {
@@ -264,11 +266,11 @@ class TSyncSage {
 							''
 						);
 			if($result <= 0){
-				echo 'Erreur mouvement stock produit '.$data['ref'].', entrepot '.$entrepot_polypap->libelle.'<br />';
+				echo 'Erreur sortie stock produit '.$data['ref'].', entrepot '.$entrepot_polypap->libelle.', retour : '.$result.', erreur : '.$product->error.'<br />';
 				return 0;
 			}
 		} else {
-			echo 'Erreur fetch produit ou entrepot, prod id = '.(int)$product->id.', entrepot id = '.(int)$entrepot_polypap->id.'<br />';
+			echo 'Erreur fetch produit ou entrepot, prod '.$data['ref'].' id = '.(int)$product->id.', entrepot '.$entrepot_polypap->libelle.' id = '.(int)$entrepot_polypap->id.'<br />';
 			return 0;
 		}
 		

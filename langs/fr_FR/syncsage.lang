@@ -12,4 +12,4 @@ SQLServerDatabaseUSR = Utilisateur pour connexion à la base de données
 SQLServerDatabasePWD = Mot de passe pour connexion à la base de données
 
 # Cron
-SyncSageLabelMvtDel = Sortie de stock Sage %S
+SyncSageLabelMvtDel = Sortie de stock Sage %s
