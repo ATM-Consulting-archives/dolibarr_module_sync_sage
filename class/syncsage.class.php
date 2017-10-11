@@ -136,8 +136,8 @@ class TSyncSage {
 			case 'sortie_stock':
 				
 				$data = array(
-					'ref'			=> $this->build_product_ref($dataline, 'l', 'l')
-					,'qty'			=> $dataline['l.DL_QteBL']
+					'ref'			=> $this->build_product_ref($dataline, '', '')
+					,'qty'			=> $dataline['DL_QteBL']
 				);
 				
 				break;
@@ -248,7 +248,7 @@ class TSyncSage {
 	
 	function add_sortie_stock_in_dolibarr(&$data) {
 		
-		global $user, $langs;
+		global $db, $user, $langs;
 		
 		$product = new Product($db);
 		if($product->fetch('', $data['ref']) > 0) {
