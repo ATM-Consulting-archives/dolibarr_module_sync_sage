@@ -112,12 +112,14 @@ class TSyncSage {
 	 * Fonction générale de gestion du besoin de stock
 	 */
 	function import_besoin_stock() {
-		$sql = $this->get_sql_import_sorties_stock();
+		$sql = $this->get_sql_import_besoin_stock();
 		$this->sagedb->Execute($sql);
 		
+		$delete_all_cmd_lines=true; // Pour supprimer les anciennes lignes lors du premier passage.
 		while($dataline = $this->sagedb->Get_line(PDO::FETCH_ASSOC)) {
-			//$data = $this->construct_array_data('sortie_stock', $dataline);
-			$this->add_besoin_stock_in_dolibarr($data);
+			$data = $this->construct_array_data('besoin_stock', $dataline);
+			$this->add_besoin_stock_in_dolibarr($data, $delete_all_cmd_lines);
+			$delete_all_cmd_lines=false;
 		}
 	}
 	
@@ -126,18 +128,32 @@ class TSyncSage {
 	 */
 	function get_sql_import_besoin_stock() {
 		
+		$sql = 'SELECT AR_Ref, AG_No1, AG_No2, SUM(GS_QteCom) as qte';
+		$sql.= ' FROM F_GAMSTOCK';
+		$sql.= ' GROUP BY AR_Ref, AG_No1, AG_No2';
+		
+		return $sql;
+		
 	}
 	
 	/**
 	 * fonction d'ajout des besoins à une commande client spécifique
 	 */
-	function add_besoin_stock_in_dolibarr() {
+	function add_besoin_stock_in_dolibarr(&$data, $delete_all_cmd_lines=false) {
 		
-		global $cmd_client_besoin_stock;
+		global $db, $user, $cmd_client_besoin_stock;
 		
 		if(empty($cmd_client_besoin_stock)) $this->get_cmd_client_besoin_stock();
 		
-		$this->delete_all_cmd_lines($cmd_client_besoin_stock);
+		if($delete_all_cmd_lines) $this->delete_all_cmd_lines($cmd_client_besoin_stock);
+		
+		// Ajout de la ligne
+		$prod = new Product($db);
+		$prod->fetch('', $data['ref']);
+		$cmd_client_besoin_stock->addline('', 1, $data['qte'], $txtva, 0, 0,$prod->id);
+		
+		// Validation de la commande pour déclencher le calcul du stock théorique
+		$cmd_client_besoin_stock->valid($user);
 		
 	}
 	
@@ -236,6 +252,13 @@ class TSyncSage {
 				);
 				
 				break;
+			
+			case 'besoin_stock':
+				
+				$data = array(
+					'ref'			=> $this->build_product_ref($dataline, '', '')
+					,'qty'			=> $dataline['qte']
+				);
 				
 			default:
 				$data = array();

@@ -9,6 +9,7 @@ dol_include_once('/syncsage/class/syncsage.class.php');
 dol_include_once('/commande/class/commande.class.php');
 dol_include_once('/user/class/user.class.php');
 dol_include_once('/societe/class/societe.class.php');
+dol_include_once('/product/class/product.class.php');
 
 $sync = new TSyncSage();
 
