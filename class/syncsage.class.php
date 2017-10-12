@@ -112,6 +112,9 @@ class TSyncSage {
 	 * Fonction générale de gestion du besoin de stock
 	 */
 	function import_besoin_stock() {
+		
+		global $cmd_client_besoin_stock;
+		
 		$sql = $this->get_sql_import_besoin_stock();
 		$this->sagedb->Execute($sql);
 		
@@ -121,6 +124,10 @@ class TSyncSage {
 			$this->add_besoin_stock_in_dolibarr($data, $delete_all_cmd_lines);
 			$delete_all_cmd_lines=false;
 		}
+		
+		// Validation de la commande pour déclencher le calcul du stock théorique
+		$cmd_client_besoin_stock->valid($user);
+		
 	}
 	
 	/**
@@ -131,6 +138,7 @@ class TSyncSage {
 		$sql = 'SELECT AR_Ref, AG_No1, AG_No2, SUM(GS_QteCom) as qte';
 		$sql.= ' FROM F_GAMSTOCK';
 		$sql.= ' GROUP BY AR_Ref, AG_No1, AG_No2';
+		$sql.= ' HAVING SUM(GS_QteCom) > 0';
 		
 		return $sql;
 		
@@ -149,11 +157,11 @@ class TSyncSage {
 		
 		// Ajout de la ligne
 		$prod = new Product($db);
-		$prod->fetch('', $data['ref']);
-		$cmd_client_besoin_stock->addline('', 1, $data['qte'], $txtva, 0, 0,$prod->id);
-		
-		// Validation de la commande pour déclencher le calcul du stock théorique
-		$cmd_client_besoin_stock->valid($user);
+		if($prod->fetch('', $data['ref']) <= 0) print 'Erreur fetch produit : '.$data['ref'].'<br />';
+		else {
+			if($cmd_client_besoin_stock->addline('', 1, $data['qty'], $txtva, 0, 0,$prod->id) <= 0) print 'Erreur addline produit '.$data['ref'].'<br />';
+			else print 'Ajout produit '.$data['ref'].' à la commande avec la quantité '.$data['qty'].'<br />';
+		}
 		
 	}
 	
@@ -259,6 +267,8 @@ class TSyncSage {
 					'ref'			=> $this->build_product_ref($dataline, '', '')
 					,'qty'			=> $dataline['qte']
 				);
+				
+				break;
 				
 			default:
 				$data = array();
