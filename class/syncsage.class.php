@@ -80,7 +80,9 @@ class TSyncSage {
 		
 		return $sql;
 	}
-	
+	/**
+	 * Fonction générale d'import des sorties de stock
+	 */
 	function import_sorties_stock() {
 		$sql = $this->get_sql_import_sorties_stock();
 		$this->sagedb->Execute($sql);
@@ -92,6 +94,9 @@ class TSyncSage {
 		
 	}
 	
+	/**
+	 * Construction de la requête pour récupérer les quantités sorties du stock
+	 */
 	function get_sql_import_sorties_stock() {
 		
 		$sql = 'SELECT l.AR_Ref, l.AG_No1, l.AG_No2, l.DL_QteBL';
@@ -100,6 +105,96 @@ class TSyncSage {
 		$sql.= ' AND Do_Type = 21'; // 21 = Lignes de mouvements de sorties de stock
 		
 		return $sql;
+		
+	}
+	
+	/**
+	 * Fonction générale de gestion du besoin de stock
+	 */
+	function import_besoin_stock() {
+		$sql = $this->get_sql_import_sorties_stock();
+		$this->sagedb->Execute($sql);
+		
+		while($dataline = $this->sagedb->Get_line(PDO::FETCH_ASSOC)) {
+			//$data = $this->construct_array_data('sortie_stock', $dataline);
+			$this->add_besoin_stock_in_dolibarr($data);
+		}
+	}
+	
+	/**
+	 * Construction de la requête pour récupérer les besoins de stock
+	 */
+	function get_sql_import_besoin_stock() {
+		
+	}
+	
+	/**
+	 * fonction d'ajout des besoins à une commande client spécifique
+	 */
+	function add_besoin_stock_in_dolibarr() {
+		
+		global $cmd_client_besoin_stock;
+		
+		if(empty($cmd_client_besoin_stock)) $this->get_cmd_client_besoin_stock();
+		
+		$this->delete_all_cmd_lines($cmd_client_besoin_stock);
+		
+	}
+	
+	/**
+	 * Fonction de chargement de la commande spécifique
+	 */
+	function get_cmd_client_besoin_stock() {
+		
+		global $db, $user, $langs, $client_besoin_stock, $cmd_client_besoin_stock; // = tiers créé par le module pour gérer la commande contenant les besoins de stock
+		
+		$langs->load('syncsage@syncsage');
+		
+		if(empty($client_besoin_stock)) $this->get_client_besoin_stock();
+		
+		$cmd_client_besoin_stock = new Commande($db);
+		$name = 'syncsage_cmd_client_besoin_stock';
+		if($cmd_client_besoin_stock->fetch('', '', $name) <= 0) {
+			$cmd_client_besoin_stock->ref_ext = $name;
+			$cmd_client_besoin_stock->ref_client = $langs->trans('SyncSageCmdName');
+			$cmd_client_besoin_stock->socid = $client_besoin_stock->id;
+			$cmd_client_besoin_stock->date = dol_now();
+			if($cmd_client_besoin_stock->create($user) <= 0) return 0;
+		}
+		
+		return $cmd_client_besoin_stock;
+		
+	}
+	
+	/**
+	 * Fonction de chargement du client spécifique
+	 */
+	function get_client_besoin_stock() {
+		global $db, $user, $client_besoin_stock;
+		
+		$client_besoin_stock = new Societe($db);
+		$name = 'CustomerModSyncSage';
+		if($client_besoin_stock->fetch('', $name) <= 0) {
+			$client_besoin_stock->client=1;
+			$client_besoin_stock->name=$client_besoin_stock->nom=$name;
+			if($client_besoin_stock->create($user) <= 0) return 0;
+		}
+		return $client_besoin_stock;
+	}
+	
+	/**
+	 * Fonction de suppression de toutes les lignes de la commande
+	 */
+	function delete_all_cmd_lines(&$cmd) {
+		
+		global $user;
+		
+		if(!empty($cmd->statut)) $cmd->set_draft($user);
+		
+		if(!empty($cmd->lines)) {
+			foreach($cmd->lines as &$line) $line->delete($user);
+		}
+		
 		
 	}
 	
@@ -246,6 +341,9 @@ class TSyncSage {
 		return $res;
 	}
 	
+	/**
+	 * Ajout d'un mouvement de sortie de stock dans Dolibarr
+	 */
 	function add_sortie_stock_in_dolibarr(&$data) {
 		
 		global $db, $user, $langs;
