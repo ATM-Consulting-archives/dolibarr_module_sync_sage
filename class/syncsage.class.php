@@ -113,7 +113,7 @@ class TSyncSage {
 	 */
 	function import_besoin_stock() {
 		
-		global $cmd_client_besoin_stock;
+		global $cmd_client_besoin_stock, $user;
 		
 		$sql = $this->get_sql_import_besoin_stock();
 		$this->sagedb->Execute($sql);
