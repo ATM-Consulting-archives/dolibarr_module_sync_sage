@@ -348,15 +348,15 @@ class TSyncSage {
 						);
 			
 			if($result <= 0){
-				echo 'Erreur sortie stock produit '.$data['ref'].', entrepot '.$entrepot_polypap->libelle.', retour : '.$result.', erreur : '.$product->error.'<br />';
+				echo '<br>ERR sortie stock '.$data['ref'].', entrepot '.$entrepot_polypap->libelle.', retour : '.$result.', erreur : '.$product->error;
 				return 0;
 			}
 		} else {
-			echo 'Erreur fetch produit ou entrepot, prod '.$data['ref'].' id = '.(int)$product->id.', entrepot '.$entrepot_polypap->libelle.' id = '.(int)$entrepot_polypap->id.'<br />';
+			echo '<br>ERR fetch '.$data['ref'].' id = '.(int)$product->id.', entrepot '.$entrepot_polypap->libelle.' id = '.(int)$entrepot_polypap->id;
 			return 0;
 		}
 		
-		print 'Sortie de stock Sage produit '.$data['ref'].', entrepot id = '.(int)$entrepot_polypap->id.'<br />';
+		echo 'OK Sortie stock '.$data['ref'].', qty '.$data['qty'];
 		return 1;
 	}
 
