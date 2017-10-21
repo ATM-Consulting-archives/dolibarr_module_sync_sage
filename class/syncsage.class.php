@@ -203,7 +203,7 @@ class TSyncSage {
 				
 				$data = array(
 					'ref'			=> $this->build_product_ref($dataline, '', '')
-					,'qty'			=> $dataline['DL_QteBL']
+					,'qty'			=> $dataline['DL_Qte']
 					,'date'			=> $dataline['DO_Date']
 				);
 				
