@@ -80,32 +80,31 @@ class TSyncSage {
 		
 		return $sql;
 	}
+	
 	/**
 	 * Fonction générale d'import des sorties de stock
 	 */
-	function import_sorties_stock() {
-		$sql = $this->get_sql_import_sorties_stock();
+	function import_sorties_stock_from_sage($time) {
+		$sql = $this->get_sql_import_sorties_stock_sage($time);
 		$this->sagedb->Execute($sql);
 		
 		while($dataline = $this->sagedb->Get_line(PDO::FETCH_ASSOC)) {
 			$data = $this->construct_array_data('sortie_stock', $dataline);
 			$this->add_sortie_stock_in_dolibarr($data);
 		}
-		
 	}
 	
 	/**
 	 * Construction de la requête pour récupérer les quantités sorties du stock
 	 */
-	function get_sql_import_sorties_stock() {
+	function get_sql_import_sorties_stock_sage($time) {
 		
-		$sql = 'SELECT l.AR_Ref, l.AG_No1, l.AG_No2, l.DL_QteBL';
+		$sql = 'SELECT l.AR_Ref, l.AG_No1, l.AG_No2, l.DL_QteBL, l.DO_Date';
 		$sql.= ' FROM F_DOCLIGNE l';
-		$sql.= " WHERE DO_Date = '".date('Ymd')."'"; // En SQL Server la date doit être entourée par des quotes
-		$sql.= ' AND Do_Type = 21'; // 21 = Lignes de mouvements de sorties de stock
+		$sql.= " WHERE l.DO_Date = '".date('Ymd', $time)."'"; // En SQL Server la date doit être entourée par des quotes
+		$sql.= ' AND l.Do_Type = 21'; // 21 = Lignes de mouvements de sorties de stock
 		
 		return $sql;
-		
 	}
 	
 	/**
@@ -117,6 +116,9 @@ class TSyncSage {
 		
 		$sql = $this->get_sql_import_besoin_stock();
 		$this->sagedb->Execute($sql);
+		
+		// Delete ancienne commande
+		// Create commande
 		
 		$delete_all_cmd_lines=true; // Pour supprimer les anciennes lignes lors du premier passage.
 		while($dataline = $this->sagedb->Get_line(PDO::FETCH_ASSOC)) {
@@ -258,6 +260,7 @@ class TSyncSage {
 				$data = array(
 					'ref'			=> $this->build_product_ref($dataline, '', '')
 					,'qty'			=> $dataline['DL_QteBL']
+					,'date'			=> $dataline['DO_Date']
 				);
 				
 				break;
@@ -378,25 +381,29 @@ class TSyncSage {
 	/**
 	 * Ajout d'un mouvement de sortie de stock dans Dolibarr
 	 */
-	function add_sortie_stock_in_dolibarr(&$data) {
-		
+	function add_sortie_stock_in_dolibarr($data) {
 		global $db, $user, $langs;
 		
 		$langs->load('syncsage@syncsage');
 		
 		$product = new Product($db);
+		$resp = $product->fetch('', $data['ref']);
+		
 		$entrepot_polypap = new Entrepot($db);
-		if($product->fetch('', $data['ref']) > 0 && $entrepot_polypap->fetch('', 'POLYPAP')) {
+		$rese = $entrepot_polypap->fetch('', 'POLYPAP');
+		
+		if($resp > 0 && $rese > 0) {
 			
 			$result = $product->correct_stock(
 							$user,
 							$entrepot_polypap->id,
 							$data['qty'],
 							1, // Suppression
-							$langs->trans('SyncSageLabelMvtDel', date('d/m/Y')),
-							0, // TODO quel Tarif ?
+							$langs->trans('SyncSageLabelMvtDel', $data['date']),
+							0,
 							''
 						);
+			
 			if($result <= 0){
 				echo 'Erreur sortie stock produit '.$data['ref'].', entrepot '.$entrepot_polypap->libelle.', retour : '.$result.', erreur : '.$product->error.'<br />';
 				return 0;
@@ -409,5 +416,4 @@ class TSyncSage {
 		print 'Sortie de stock Sage produit '.$data['ref'].', entrepot id = '.(int)$entrepot_polypap->id.'<br />';
 		return 1;
 	}
-	
 }

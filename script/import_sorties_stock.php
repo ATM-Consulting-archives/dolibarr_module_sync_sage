@@ -14,5 +14,8 @@ $sync = new TSyncSage();
 $sync->sagedb->debug = true;
 $sync->debug = true;
 
+$date = GETPOST('date');
+$time = empty($date) ? time() : strtotime($date);
+
 // On importe les sorties de stock enregistrées dans Sage
-$sync->import_sorties_stock();
+$sync->import_sorties_stock_from_sage($time);
