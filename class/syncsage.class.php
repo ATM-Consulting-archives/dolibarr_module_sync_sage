@@ -99,7 +99,7 @@ class TSyncSage {
 	 */
 	function get_sql_import_sorties_stock_sage($time) {
 		
-		$sql = 'SELECT l.AR_Ref, l.AG_No1, l.AG_No2, l.DL_QteBL, l.DO_Date';
+		$sql = 'SELECT l.AR_Ref, l.AG_No1, l.AG_No2, l.DL_Qte, l.DO_Date';
 		$sql.= ' FROM F_DOCLIGNE l';
 		$sql.= " WHERE l.DO_Date = '".date('Ymd', $time)."'"; // En SQL Server la date doit être entourée par des quotes
 		$sql.= ' AND l.Do_Type = 21'; // 21 = Lignes de mouvements de sorties de stock
