@@ -204,7 +204,7 @@ class TSyncSage {
 				$data = array(
 					'ref'			=> $this->build_product_ref($dataline, '', '')
 					,'qty'			=> $dataline['DL_Qte']
-					,'date'			=> $dataline['DO_Date']
+					,'date'			=> date('Y-m-d', strtotime($dataline['DO_Date']))
 				);
 				
 				break;
@@ -356,7 +356,7 @@ class TSyncSage {
 			return 0;
 		}
 		
-		echo 'OK Sortie stock '.$data['ref'].', qty '.$data['qty'];
+		echo '<br>OK Sortie stock '.$data['ref'].', qty '.$data['qty'];
 		return 1;
 	}
 
