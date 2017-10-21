@@ -109,27 +109,50 @@ class TSyncSage {
 	
 	/**
 	 * Fonction générale de gestion du besoin de stock
+	 * Une commande client va être créée et contiendra tous les produits en commande client dans Sage
+	 * Cela permet d'avoir le stock théorique calculé dans Dolibarr basé sur le besoin client venant de Sage
+	 * Fonction rappelée tous les jour pour mise à jour de la commande
 	 */
 	function import_besoin_stock() {
-		
-		global $cmd_client_besoin_stock, $user;
+		global $db, $user, $langs;
 		
 		$sql = $this->get_sql_import_besoin_stock();
 		$this->sagedb->Execute($sql);
 		
-		// Delete ancienne commande
-		// Create commande
+		// Nom du client que l'on utilise
+		$name = 'CustomerModSyncSage';
+		// Identifiant (ref_ext) de la commande client que l'on utilise
+		$refext = 'syncsage_cmd_client_besoin_stock';
 		
-		$delete_all_cmd_lines=true; // Pour supprimer les anciennes lignes lors du premier passage.
+		// On supprime la commande
+		$cmd = new Commande($db);
+		$cmd->fetch('','',$refext);
+		$cmd->delete($user);
+		
+		// On créé la commande
+		$soc = new Societe($db);
+		if($soc->fetch('',$name) <= 0) {
+			echo '<br>ERR fetch client '.$name.' : '.$soc->error;
+			return 0;
+		}
+		
+		$cmd = new Commande($db);
+		$cmd->ref_ext = $refext;
+		$cmd->ref_client = $langs->trans('SyncSageCmdName');
+		$cmd->socid = $soc->id;
+		$cmd->date = dol_now();
+		if($cmd->create($user) <= 0) {
+			echo '<br>ERR creation commande : '.$cmd->error;
+			return 0;
+		}
+		
 		while($dataline = $this->sagedb->Get_line(PDO::FETCH_ASSOC)) {
 			$data = $this->construct_array_data('besoin_stock', $dataline);
-			$this->add_besoin_stock_in_dolibarr($data, $delete_all_cmd_lines);
-			$delete_all_cmd_lines=false;
+			$this->add_besoin_stock_in_dolibarr($cmd, $data);
 		}
 		
 		// Validation de la commande pour déclencher le calcul du stock théorique
-		$cmd_client_besoin_stock->valid($user);
-		
+		$cmd->valid($user);
 	}
 	
 	/**
@@ -143,85 +166,6 @@ class TSyncSage {
 		$sql.= ' HAVING SUM(GS_QteCom) > 0';
 		
 		return $sql;
-		
-	}
-	
-	/**
-	 * fonction d'ajout des besoins à une commande client spécifique
-	 */
-	function add_besoin_stock_in_dolibarr(&$data, $delete_all_cmd_lines=false) {
-		
-		global $db, $user, $cmd_client_besoin_stock;
-		
-		if(empty($cmd_client_besoin_stock)) $this->get_cmd_client_besoin_stock();
-		
-		if($delete_all_cmd_lines) $this->delete_all_cmd_lines($cmd_client_besoin_stock);
-		
-		// Ajout de la ligne
-		$prod = new Product($db);
-		if($prod->fetch('', $data['ref']) <= 0) print 'Erreur fetch produit : '.$data['ref'].'<br />';
-		else {
-			if($cmd_client_besoin_stock->addline('', 1, $data['qty'], $txtva, 0, 0,$prod->id) <= 0) print 'Erreur addline produit '.$data['ref'].'<br />';
-			else print 'Ajout produit '.$data['ref'].' à la commande avec la quantité '.$data['qty'].'<br />';
-		}
-		
-	}
-	
-	/**
-	 * Fonction de chargement de la commande spécifique
-	 */
-	function get_cmd_client_besoin_stock() {
-		
-		global $db, $user, $langs, $client_besoin_stock, $cmd_client_besoin_stock; // = tiers créé par le module pour gérer la commande contenant les besoins de stock
-		
-		$langs->load('syncsage@syncsage');
-		
-		if(empty($client_besoin_stock)) $this->get_client_besoin_stock();
-		
-		$cmd_client_besoin_stock = new Commande($db);
-		$name = 'syncsage_cmd_client_besoin_stock';
-		if($cmd_client_besoin_stock->fetch('', '', $name) <= 0) {
-			$cmd_client_besoin_stock->ref_ext = $name;
-			$cmd_client_besoin_stock->ref_client = $langs->trans('SyncSageCmdName');
-			$cmd_client_besoin_stock->socid = $client_besoin_stock->id;
-			$cmd_client_besoin_stock->date = dol_now();
-			if($cmd_client_besoin_stock->create($user) <= 0) return 0;
-		}
-		
-		return $cmd_client_besoin_stock;
-		
-	}
-	
-	/**
-	 * Fonction de chargement du client spécifique
-	 */
-	function get_client_besoin_stock() {
-		global $db, $user, $client_besoin_stock;
-		
-		$client_besoin_stock = new Societe($db);
-		$name = 'CustomerModSyncSage';
-		if($client_besoin_stock->fetch('', $name) <= 0) {
-			$client_besoin_stock->client=1;
-			$client_besoin_stock->name=$client_besoin_stock->nom=$name;
-			if($client_besoin_stock->create($user) <= 0) return 0;
-		}
-		return $client_besoin_stock;
-	}
-	
-	/**
-	 * Fonction de suppression de toutes les lignes de la commande
-	 */
-	function delete_all_cmd_lines(&$cmd) {
-		
-		global $user;
-		
-		if(!empty($cmd->statut)) $cmd->set_draft($user);
-		
-		if(!empty($cmd->lines)) {
-			foreach($cmd->lines as &$line) $line->delete($user);
-		}
-		
-		
 	}
 	
 	/*
@@ -278,7 +222,6 @@ class TSyncSage {
 				$data = array();
 				break;
 		}
-		
 		
 		return $data;
 	}
@@ -415,5 +358,26 @@ class TSyncSage {
 		
 		print 'Sortie de stock Sage produit '.$data['ref'].', entrepot id = '.(int)$entrepot_polypap->id.'<br />';
 		return 1;
+	}
+
+	/**
+	 * fonction d'ajout des besoins à une commande client spécifique
+	 */
+	function add_besoin_stock_in_dolibarr(&$cmd, $data) {
+		global $db;
+		
+		// Ajout de la ligne
+		$prod = new Product($db);
+		if($prod->fetch('', $data['ref']) <= 0) {
+			print '<br>ERR fetch produit : '.$data['ref'];
+		}
+		else {
+			if($cmd->addline('', 0, $data['qty'], $prod->tva_tx, 0, 0, $prod->id) <= 0) {
+				print '<br>ERR addline produit '.$data['ref'].' : '.$cmd->error;
+			}
+			else {
+				print '<br>OK addline produit '.$data['ref'].', qty '.$data['qty'];
+			}
+		}
 	}
 }
