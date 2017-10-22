@@ -185,6 +185,12 @@ class TSyncSage {
 					,'price'			=> $dataline['a.AR_PrixVen']
 					,'cost_price'		=> $dataline['ae.AE_PrixAch']
 					,'category'			=> $dataline['a.FA_CodeFamille']
+					,'array_options'	=> array(
+						'options_ref_sage'			=> $dataline['a.AR_Ref']
+						,'options_gam1_sage'		=> $dataline['ae.AG_No1']
+						,'options_gam2_sage'		=> $dataline['ae.AG_No2']
+						,'options_origine'			=> $dataline['a.ORIGINE']
+					)
 				);
 				
 				break;
