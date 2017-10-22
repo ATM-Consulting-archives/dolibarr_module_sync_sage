@@ -246,6 +246,8 @@ class modSyncSage extends DolibarrModules
 	 */
 	function init($options='')
 	{
+		global $db;
+		
 		$sql = array();
 		
 		define('INC_FROM_DOLIBARR',true);
@@ -259,7 +261,7 @@ class modSyncSage extends DolibarrModules
 		dol_include_once('/core/class/extrafields.class.php');
 		$extrafields=new ExtraFields($db);
 		$extrafields->addExtraField('ref_sage', 'SAGE Référence', 'varchar', 100, 255, 'product', 0, 0, '', 0, 1);
-		$extrafields->addExtraField('gam1_sage', 'SAGE Gamme 1', 'varchar', 100, 255, 'product', 0, 0, '', 0, 1);
+		$extrafields->addExtraField('gam1_sage', 'SAGE Gamme 1', 'varchar', 101, 255, 'product', 0, 0, '', 0, 1);
 		$extrafields->addExtraField('gam2_sage', 'SAGE Gamme 2', 'varchar', 102, 255, 'product', 0, 0, '', 0, 1);
 		$extrafields->addExtraField('origine', 'SAGE Origine', 'varchar', 103, 255, 'product', 0, 0, '', 0, 1);
 
