@@ -350,7 +350,7 @@ class TSyncSage {
 							1, // Suppression
 							$langs->trans('SyncSageLabelMvtDel', $data['date']),
 							0,
-							''
+							'SyncFromSage'
 						);
 			
 			if($result <= 0){
