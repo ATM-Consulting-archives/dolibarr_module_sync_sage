@@ -99,10 +99,9 @@ class TSyncSage {
 	 */
 	function get_sql_import_sorties_stock_sage($time) {
 		
-		$sql = 'SELECT l.AR_Ref, l.AG_No1, l.AG_No2, l.DL_Qte, l.DO_Date';
+		$sql = 'SELECT l.AR_Ref, l.AG_No1, l.AG_No2, l.DL_QteBL, l.DL_DateBL';
 		$sql.= ' FROM F_DOCLIGNE l';
-		$sql.= " WHERE l.DO_Date = '".date('Ymd', $time)."'"; // En SQL Server la date doit être entourée par des quotes
-		$sql.= ' AND l.Do_Type = 21'; // 21 = Lignes de mouvements de sorties de stock
+		$sql.= " WHERE l.DL_DateBL = '".date('Ymd', $time)."'"; // En SQL Server la date doit être entourée par des quotes
 		
 		return $sql;
 	}
@@ -160,10 +159,10 @@ class TSyncSage {
 	 */
 	function get_sql_import_besoin_stock() {
 		
-		$sql = 'SELECT AR_Ref, AG_No1, AG_No2, SUM(GS_QteCom) as qte';
+		$sql = 'SELECT AR_Ref, AG_No1, AG_No2, SUM(GS_QteRes) as qte';
 		$sql.= ' FROM F_GAMSTOCK';
 		$sql.= ' GROUP BY AR_Ref, AG_No1, AG_No2';
-		$sql.= ' HAVING SUM(GS_QteCom) > 0';
+		$sql.= ' HAVING SUM(GS_QteRes) > 0';
 		
 		return $sql;
 	}
@@ -247,7 +246,7 @@ class TSyncSage {
 				$data = array(
 					'ref'			=> $this->build_product_ref($dataline, '', '')
 					,'qty'			=> $dataline['DL_Qte']
-					,'date'			=> date('Y-m-d', strtotime($dataline['DO_Date']))
+					,'date'			=> date('Y-m-d', strtotime($dataline['DL_DateBL']))
 				);
 				
 				break;
@@ -438,7 +437,7 @@ class TSyncSage {
 	 * fonction d'initialisation du stock Dolibarr
 	 */
 	function init_stock_in_dolibarr($data, $id_entrepot) {
-		global $db;
+		global $db, $langs, $user;
 		
 		$product = new Product($db);
 		$resp = $product->fetch('', $data['ref']);

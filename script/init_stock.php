@@ -1,6 +1,7 @@
 <?php
 
 ini_set('display_errors',true);
+set_time_limit(0);
 define('INC_FROM_CRON_SCRIPT', true);
 
 require('../config.php');
