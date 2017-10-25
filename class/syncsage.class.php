@@ -7,7 +7,9 @@ class TSyncSage {
 	var $TProductCategory = array();
 	
 	function __construct() {
-		global $conf;
+		global $conf, $langs;
+		
+		$langs->load('syncsage@syncsage');
 		
 		$dsn = $conf->global->SYNCSAGE_DSN;
 		$usr = $conf->global->SYNCSAGE_USR;
@@ -378,8 +380,6 @@ class TSyncSage {
 	 */
 	function add_sortie_stock_in_dolibarr($data) {
 		global $db, $user, $langs;
-		
-		$langs->load('syncsage@syncsage');
 		
 		$product = new Product($db);
 		$resp = $product->fetch('', $data['ref']);
