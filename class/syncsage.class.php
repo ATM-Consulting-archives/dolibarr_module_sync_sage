@@ -169,6 +169,44 @@ class TSyncSage {
 	}
 	
 	/*
+	 * Fonction générale d'initialisation du stock Dolibarr depuis le stock Sage
+	 */
+	function init_stock_from_sage($id_entrepot_sage, $id_entrepot_dolibarr) {
+		global $db;
+		
+		// Mise à 0 du stock Dolibarr
+		$sql = 'TRUNCATE '.MAIN_DB_PREFIX.'product_stock';
+		$db->query($sql);
+		$sql = 'TRUNCATE '.MAIN_DB_PREFIX.'stock_mouvement';
+		$db->query($sql);
+		$sql = 'UPDATE '.MAIN_DB_PREFIX.'product SET stock = 0, pmp = 0';
+		$db->query($sql);
+		
+		$sql = $this->get_sql_init_stock_sage($id_entrepot_sage);
+		$this->sagedb->Execute($sql);
+		
+		while($dataline = $this->sagedb->Get_line(PDO::FETCH_ASSOC)) {
+			$data = $this->construct_array_data('init_stock', $dataline);
+			$this->init_stock_in_dolibarr($data, $id_entrepot_dolibarr);
+		}
+	}
+	
+	/*
+	 * Construction de la requête SQL pour récupérer les stocks dans Sage 
+	 */
+	function get_sql_init_stock_sage($id_entrepot) {
+		global $conf;
+		
+		$sql = 'SELECT stock.AR_Ref, stock.AG_No1, stock.AG_No2, stock.GS_MontSto, stock.GS_QteSto ';
+		$sql.= ' FROM F_GAMSTOCK stock';
+		$sql.= ' LEFT JOIN F_ARTENUMREF ae ON (ae.AR_Ref = a.AR_Ref)';
+		$sql.= ' WHERE stock.GS_QteSto > 0';
+		$sql.= ' WHERE stock.DE_No = '.$id_entrepot.' ';
+		
+		return $sql;
+	}
+	
+	/*
 	 * Construction du tableau contenant les données
 	 */
 	function construct_array_data($type, $dataline) {
@@ -220,6 +258,16 @@ class TSyncSage {
 				$data = array(
 					'ref'			=> $this->build_product_ref($dataline, '', '')
 					,'qty'			=> $dataline['qte']
+				);
+				
+				break;
+			
+			case 'init_stock':
+				
+				$data = array(
+					'ref'			=> $this->build_product_ref($dataline, '', '')
+					,'qty'			=> $dataline['GS_QteSto']
+					,'pmp'			=> $dataline['GS_MontSto']
 				);
 				
 				break;
@@ -385,5 +433,41 @@ class TSyncSage {
 				print '<br>OK addline produit '.$data['ref'].', qty '.$data['qty'];
 			}
 		}
+	}
+	
+	/**
+	 * fonction d'initialisation du stock Dolibarr
+	 */
+	function init_stock_in_dolibarr($data, $id_entrepot) {
+		global $db;
+		
+		$product = new Product($db);
+		$resp = $product->fetch('', $data['ref']);
+		
+		$entrepot_polypap = new Entrepot($db);
+		$rese = $entrepot_polypap->fetch($id_entrepot);
+		
+		if($resp > 0 && $rese > 0) {
+			
+			$result = $product->correct_stock(
+							$user,
+							$entrepot_polypap->id,
+							$data['qty'],
+							0, // Ajout
+							$langs->trans('SyncSageLabelMvtInit', $data['date']),
+							$data['pmp'],
+							'InitFromSage'
+						);
+			
+			if($result <= 0){
+				echo '<br>ERR init stock '.$data['ref'].', entrepot '.$entrepot_polypap->libelle.', retour : '.$result.', erreur : '.$product->error;
+				return 0;
+			}
+		} else {
+			echo '<br>ERR fetch '.$data['ref'].' id = '.(int)$product->id.', entrepot '.$entrepot_polypap->libelle.' id = '.(int)$entrepot_polypap->id;
+			return 0;
+		}
+		
+		echo '<br>OK Init stock '.$data['ref'].', qty '.$data['qty'];
 	}
 }

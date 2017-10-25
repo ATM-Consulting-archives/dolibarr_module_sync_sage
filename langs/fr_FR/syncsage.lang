@@ -13,4 +13,5 @@ SQLServerDatabasePWD = Mot de passe pour connexion à la base de données
 
 # Cron
 SyncSageLabelMvtDel = Sortie de stock Sage %s
+SyncSageLabelMvtInit = Stock initial Sage %s
 SyncSageCmdName = Commande de gestion des besoins de stocks
