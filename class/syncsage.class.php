@@ -199,9 +199,8 @@ class TSyncSage {
 		
 		$sql = 'SELECT stock.AR_Ref, stock.AG_No1, stock.AG_No2, stock.GS_MontSto, stock.GS_QteSto ';
 		$sql.= ' FROM F_GAMSTOCK stock';
-		$sql.= ' LEFT JOIN F_ARTENUMREF ae ON (ae.AR_Ref = a.AR_Ref)';
 		$sql.= ' WHERE stock.GS_QteSto > 0';
-		$sql.= ' WHERE stock.DE_No = '.$id_entrepot.' ';
+		$sql.= ' AND stock.DE_No = '.$id_entrepot.' ';
 		
 		return $sql;
 	}
@@ -267,7 +266,7 @@ class TSyncSage {
 				$data = array(
 					'ref'			=> $this->build_product_ref($dataline, '', '')
 					,'qty'			=> $dataline['GS_QteSto']
-					,'pmp'			=> $dataline['GS_MontSto']
+					,'pmp'			=> round($dataline['GS_MontSto'] / $dataline['GS_QteSto'],2)
 				);
 				
 				break;
