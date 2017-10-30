@@ -252,7 +252,7 @@ class TSyncSage {
 				
 				$data = array(
 					'ref'			=> $this->build_product_ref($dataline, '', '')
-					,'qty'			=> $dataline['DL_Qte']
+					,'qty'			=> $dataline['DL_QteBL']
 					,'date'			=> date('Y-m-d', strtotime($dataline['DL_DateBL']))
 				);
 				
@@ -385,6 +385,8 @@ class TSyncSage {
 	 */
 	function add_sortie_stock_in_dolibarr($data) {
 		global $db, $user, $langs;
+		
+		if(empty($data['ref'])) return 0;
 		
 		$product = new Product($db);
 		$resp = $product->fetch('', $data['ref']);
