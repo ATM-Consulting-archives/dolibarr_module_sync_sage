@@ -217,13 +217,13 @@ class TSyncSage {
 		global $db;
 		
 		$sql = $this->get_sql_mouvements_stock_dolibarr($time);
-		$db->query($sql);
+		$resql = $db->query($sql);
 		
 		// Ouverture fichier
 		$filename = DOL_DATA_ROOT . '/syncsage/export/mvt_stock_'.date('Ymd').'csv';
 		$handle = fopen($filename, 'w');
 		
-		while($dataline = $this->db->fetch()) {
+		while($dataline = $db->fetch_array($resql)) {
 			$data = $this->construct_array_data('mouvements_stock', $dataline);
 			// Écriture fichier
 			fputcsv($handle, $data);
