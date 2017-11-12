@@ -40,7 +40,7 @@ class CronSage {
 		$sync->sync_category_from_sage();
 		$sync->sync_product_from_sage();
 		
-		return 1;
+		return 0;
 	}
 	
 	function importSortiesStock() {
