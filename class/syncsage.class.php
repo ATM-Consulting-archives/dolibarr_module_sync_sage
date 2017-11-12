@@ -214,8 +214,10 @@ class TSyncSage {
 	 * Export des mouvements de stock Dolibarr dans un fichier pour import ensuite dans Sage
 	 */
 	function export_mouvements_stock_from_dolibarr($time) {
+		global $db;
+		
 		$sql = $this->get_sql_mouvements_stock_dolibarr($time);
-		$this->db->query($sql);
+		$db->query($sql);
 		
 		// Ouverture fichier
 		$filename = DOL_DATA_ROOT . '/syncsage/export/mvt_stock_'.date('Ymd').'csv';

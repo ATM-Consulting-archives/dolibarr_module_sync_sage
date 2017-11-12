@@ -1,3 +1,4 @@
+<?php
 if(!class_exists('TObjetStd')) {
 	define('INC_FROM_DOLIBARR', true);
 	require __DIR__.'/../config.php';
@@ -40,7 +41,7 @@ class CronSage {
 		$sync->sync_product_from_sage();
 	}
 	
-	fucntion importSortiesStock() {
+	function importSortiesStock() {
 		dol_include_once('/syncsage/class/syncsage.class.php');
 		dol_include_once('/product/stock/class/entrepot.class.php');
 		dol_include_once('/product/class/product.class.php');
@@ -73,7 +74,7 @@ class CronSage {
 		$sync->import_besoin_stock();
 	}
 	
-	fucntion exportMouvementsStock() {
+	function exportMouvementsStock() {
 		dol_include_once('/syncsage/class/syncsage.class.php');
 		
 		$sync = new TSyncSage();
