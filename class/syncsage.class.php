@@ -211,6 +211,42 @@ class TSyncSage {
 	}
 	
 	/*
+	 * Export des mouvements de stock Dolibarr dans un fichier pour import ensuite dans Sage
+	 */
+	function export_mouvements_stock_from_dolibarr($time) {
+		$sql = $this->get_sql_mouvements_stock_dolibarr($time);
+		$this->db->query($sql);
+		
+		// Ouverture fichier
+		$filename = DOL_DATA_ROOT . '/syncsage/export/mvt_stock_'.date('Ymd').'csv';
+		$handle = fopen($filename, 'w');
+		
+		while($dataline = $this->db->fetch()) {
+			$data = $this->construct_array_data('mouvements_stock', $dataline);
+			// Écriture fichier
+			fputcsv($handle, $data);
+		}
+		
+		fclose($handle);
+	}
+	
+	/*
+	 * Construction de la requête SQL pour récupérer les mouvements de stocks dans Dolibarr
+	 */
+	function get_sql_mouvements_stock_dolibarr($time) {
+		global $conf;
+		
+		$sql = 'SELECT p.rowid, DATE(m.datem) as datem, pext.ref_sage, pext.gam1_sage, pext.gam2_sage, SUM(m.value) as qty ';
+		$sql.= 'FROM '.MAIN_DB_PREFIX.'stock_mouvement m ';
+		$sql.= 'LEFT JOIN '.MAIN_DB_PREFIX.'product p ON (p.rowid = m.fk_product) ';
+		$sql.= 'LEFT JOIN '.MAIN_DB_PREFIX.'product_extrafields pext ON (p.rowid = pext.fk_object) ';
+		$sql.= 'WHERE DATE(m.datem) = \''. date('Y-m-d', $time) .'\' ';
+		$sql.= 'GROUP BY p.rowid, m.datem, pext.ref_sage, pext.gam1_sage, pext.gam2_sage';
+		
+		return $sql;
+	}
+	
+	/*
 	 * Construction du tableau contenant les données
 	 */
 	function construct_array_data($type, $dataline) {
@@ -275,6 +311,21 @@ class TSyncSage {
 					,'pmp'			=> round($dataline['GS_MontSto'] / $dataline['GS_QteSto'],2)
 				);
 				
+				break;
+			
+			case 'mouvements_stock':
+				
+				$data = array(
+					'type_doc'	=> 20
+					,'ref_doc'	=> date('ymd')
+					,'date'		=> date('dmy')
+					,'tiers'	=> '2'
+					,'ref'		=> $dataline['ref_sage']
+					,'gam1'		=> $dataline['gam1_sage']
+					,'gam2'		=> $dataline['gam2_sage']
+					,'qty'		=> $dataline['qty']
+					,'ent'		=> '2'
+				);
 				break;
 				
 			default:

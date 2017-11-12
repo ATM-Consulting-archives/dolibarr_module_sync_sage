@@ -91,7 +91,7 @@ class modSyncSage extends DolibarrModules
 
 		// Data directories to create when module is enabled.
 		// Example: this->dirs = array("/syncsage/temp");
-		$this->dirs = array();
+		$this->dirs = array('/syncsage/export');
 
 		// Config pages. Put here list of php page, stored into syncsage/admin directory, to use to setup module.
 		$this->config_page_url = array("syncsage_setup.php@syncsage");
