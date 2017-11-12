@@ -35,7 +35,7 @@ class TSyncSage {
 			$this->create_category_in_dolibarr($data);
 		}
 		
-		return 1;
+		return 0;
 	}
 	
 	/*
@@ -64,7 +64,7 @@ class TSyncSage {
 			$this->create_product_in_dolibarr($data);
 		}
 		
-		return 1;
+		return 0;
 	}
 	
 	/*
@@ -235,7 +235,7 @@ class TSyncSage {
 		
 		fclose($handle);
 		
-		return 1;
+		return 0;
 	}
 	
 	/*
@@ -475,7 +475,7 @@ class TSyncSage {
 		}
 		
 		echo '<br>OK Sortie stock '.$data['ref'].', qty '.$data['qty'];
-		return 1;
+		return 0;
 	}
 
 	/**
