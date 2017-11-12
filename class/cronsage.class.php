@@ -72,4 +72,19 @@ class CronSage {
 		// On importe les sorties de stock enregistrées dans Sage
 		$sync->import_besoin_stock();
 	}
+	
+	fucntion exportMouvementsStock() {
+		dol_include_once('/syncsage/class/syncsage.class.php');
+		
+		$sync = new TSyncSage();
+		
+		$sync->sagedb->debug = true;
+		$sync->debug = true;
+		
+		$date = GETPOST('date');
+		$time = empty($date) ? time() : strtotime($date);
+		
+		// On exporte les mouvements de stock enregistrés dans Dolibarr
+		$sync->export_mouvements_stock_from_dolibarr($time);
+	}
 }
