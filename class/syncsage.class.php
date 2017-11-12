@@ -34,6 +34,8 @@ class TSyncSage {
 			$data = $this->construct_array_data('category', $dataline);
 			$this->create_category_in_dolibarr($data);
 		}
+		
+		return 1;
 	}
 	
 	/*
@@ -61,6 +63,8 @@ class TSyncSage {
 			$data = $this->construct_array_data('product', $dataline);
 			$this->create_product_in_dolibarr($data);
 		}
+		
+		return 1;
 	}
 	
 	/*
@@ -230,6 +234,8 @@ class TSyncSage {
 		}
 		
 		fclose($handle);
+		
+		return 1;
 	}
 	
 	/*

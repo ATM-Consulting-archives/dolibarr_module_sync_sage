@@ -39,6 +39,8 @@ class CronSage {
 		// On synchronise d'abord les catégorie de produit
 		$sync->sync_category_from_sage();
 		$sync->sync_product_from_sage();
+		
+		return 1;
 	}
 	
 	function importSortiesStock() {
@@ -86,6 +88,6 @@ class CronSage {
 		$time = empty($date) ? time() : strtotime($date);
 		
 		// On exporte les mouvements de stock enregistrés dans Dolibarr
-		$sync->export_mouvements_stock_from_dolibarr($time);
+		return $sync->export_mouvements_stock_from_dolibarr($time);
 	}
 }
