@@ -274,8 +274,8 @@ class TSyncSage {
 					,'category'			=> $dataline['a.FA_CodeFamille']
 					,'array_options'	=> array(
 						'options_ref_sage'			=> $dataline['a.AR_Ref']
-						,'options_gam1_sage'		=> $dataline['ae.AG_No1']
-						,'options_gam2_sage'		=> $dataline['ae.AG_No2']
+						,'options_gam1_sage'		=> $dataline['ag1.EG_Enumere']
+						,'options_gam2_sage'		=> $dataline['ag2.EG_Enumere']
 						,'options_origine'			=> $dataline['a.ORIGINE']
 					)
 				);
