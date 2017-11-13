@@ -1,6 +1,7 @@
 <?php
 if(!class_exists('TObjetStd')) {
 	define('INC_FROM_DOLIBARR', true);
+	chdir(__DIR__);
 	require __DIR__.'/../config.php';
 }
 
