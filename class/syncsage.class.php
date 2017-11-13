@@ -224,7 +224,7 @@ class TSyncSage {
 		$resql = $db->query($sql);
 		
 		// Ouverture fichier
-		$filename = DOL_DATA_ROOT . '/syncsage/export/mvt_stock_'.date('Ymd').'csv';
+		$filename = DOL_DATA_ROOT . '/syncsage/export/mvt_stock_'.date('Ymd').'.csv';
 		$handle = fopen($filename, 'w');
 		
 		while($dataline = $db->fetch_array($resql)) {
@@ -249,7 +249,7 @@ class TSyncSage {
 		$sql.= 'LEFT JOIN '.MAIN_DB_PREFIX.'product p ON (p.rowid = m.fk_product) ';
 		$sql.= 'LEFT JOIN '.MAIN_DB_PREFIX.'product_extrafields pext ON (p.rowid = pext.fk_object) ';
 		$sql.= 'WHERE DATE(m.datem) = \''. date('Y-m-d', $time) .'\' ';
-		$sql.= 'GROUP BY p.rowid, m.datem, pext.ref_sage, pext.gam1_sage, pext.gam2_sage';
+		$sql.= 'GROUP BY p.rowid, DATE(m.datem), pext.ref_sage, pext.gam1_sage, pext.gam2_sage';
 		
 		return $sql;
 	}
@@ -324,15 +324,16 @@ class TSyncSage {
 			case 'mouvements_stock':
 				
 				$data = array(
-					'type_doc'	=> 20
+					'domaine' 	=> '2'
+					,'type_doc'	=> $dataline['qty'] > 0 ? 20 : 21 // 20 = entrée, 21 = sortie
 					,'ref_doc'	=> date('ymd')
 					,'date'		=> date('dmy')
 					,'tiers'	=> '2'
 					,'ref'		=> $dataline['ref_sage']
-					,'gam1'		=> $dataline['gam1_sage']
-					,'gam2'		=> $dataline['gam2_sage']
-					,'qty'		=> $dataline['qty']
-					,'ent'		=> '2'
+					,'gam1'		=> !empty($dataline['gam1_sage']) ? $dataline['gam1_sage'] : ''
+					,'gam2'		=> !empty($dataline['gam2_sage']) ? $dataline['gam2_sage'] : ''
+					,'qty'		=> abs($dataline['qty'])
+					,'ent'		=> 'POLYPAP'
 				);
 				break;
 				
