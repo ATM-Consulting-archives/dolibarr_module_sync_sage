@@ -87,6 +87,7 @@ class TSyncSage {
 		$sql.= ' WHERE 1 = 1';
 		$sql.= ' AND ac.ACP_Type = 1';
 		$sql.= ' AND ac.ACP_Champ = 1';
+		$sql.= ' AND a.AR_DateModif > \''.date('Y-d-m', strtotime('-2days')).'\' ';
 		
 		return $sql;
 	}
