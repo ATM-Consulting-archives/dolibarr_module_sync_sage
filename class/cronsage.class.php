@@ -2,7 +2,7 @@
 if(!class_exists('TObjetStd')) {
 	define('INC_FROM_DOLIBARR', true);
 	chdir(__DIR__);
-	require __DIR__.'/../config.php';
+	require '/../config.php';
 }
 
 class CronSage {
@@ -28,6 +28,8 @@ class CronSage {
 	}
 	
 	function syncProduct() {
+		global $conf;
+		
 		dol_include_once('/syncsage/class/syncsage.class.php');
 		dol_include_once('/product/class/product.class.php');
 		dol_include_once('/categories/class/categorie.class.php');
@@ -37,9 +39,12 @@ class CronSage {
 		$sync->sagedb->debug = true;
 		$sync->debug = true;
 		
+		$date = GETPOST('date');
+		$time = empty($date) ? strtotime('-'.$conf->global->SYNCSAGE_PRODUCT_NBDAYS.' days') : strtotime($date);
+		
 		// On synchronise d'abord les catégorie de produit
 		$sync->sync_category_from_sage();
-		$sync->sync_product_from_sage();
+		$sync->sync_product_from_sage($time);
 		
 		return 0;
 	}

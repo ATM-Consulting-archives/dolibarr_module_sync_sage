@@ -102,7 +102,7 @@ print '<table class="noborder" width="100%">';
 print '<tr class="liste_titre">';
 print '<td>'.$langs->trans("DatabaseConnection").'</td>'."\n";
 print '<td align="center" width="20">&nbsp;</td>';
-print '<td align="center" width="300">'.$langs->trans("Value").'</td>'."\n";
+print '<td align="center" width="300">'.$langs->trans("Value").'</td></tr>'."\n";
 
 
 // Example with a yes / no select
@@ -141,6 +141,24 @@ print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 print '<input type="hidden" name="action" value="set_SYNCSAGE_PWD">';
 print '<input type="password" name="SYNCSAGE_PWD" value="'.$conf->global->SYNCSAGE_PWD.'" />';
+print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
+print '</form>';
+print '</td></tr>';
+
+print '<tr class="liste_titre">';
+print '<td>'.$langs->trans("SyncSetup").'</td>'."\n";
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="center" width="300">'.$langs->trans("Value").'</td></tr>'."\n";
+
+$var=!$var;
+print '<tr '.$bc[$var].'>';
+print '<td>'.$langs->trans("SyncProductModifiedSinceXDays").'</td>';
+print '<td align="center" width="20">&nbsp;</td>';
+print '<td align="right" width="300">';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="set_SYNCSAGE_PRODUCT_NBDAYS">';
+print '<input type="text" name="SYNCSAGE_PRODUCT_NBDAYS" value="'.$conf->global->SYNCSAGE_PRODUCT_NBDAYS.'" />';
 print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">';
 print '</form>';
 print '</td></tr>';

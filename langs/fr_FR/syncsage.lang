@@ -10,6 +10,8 @@ SyncSageAbout = A propos du module de synchronisation Sage
 SQLServerDSN = DSN du serveur SQL
 SQLServerDatabaseUSR = Utilisateur pour connexion à la base de données
 SQLServerDatabasePWD = Mot de passe pour connexion à la base de données
+SyncSetup = Configuration de la synchronisation
+SyncProductModifiedSinceXDays = Récupérer les produits modifiés depuis moins de X jours
 
 # Cron
 SyncSageLabelMvtDel = Sortie de stock Sage %s

@@ -55,8 +55,8 @@ class TSyncSage {
 	/*
 	 * Fonction générale de synchro produit
 	 */
-	function sync_product_from_sage() {
-		$sql = $this->get_sql_product_sage();
+	function sync_product_from_sage($time) {
+		$sql = $this->get_sql_product_sage($time);
 		$this->sagedb->Execute($sql);
 		
 		while($dataline = $this->sagedb->Get_line(PDO::FETCH_ASSOC)) {
@@ -70,7 +70,7 @@ class TSyncSage {
 	/*
 	 * Construction de la requête SQL pour récupérer les produits dans Sage 
 	 */
-	function get_sql_product_sage() {
+	function get_sql_product_sage($time) {
 		global $conf;
 		
 		$sql = 'SELECT ';
@@ -87,7 +87,7 @@ class TSyncSage {
 		$sql.= ' WHERE 1 = 1';
 		$sql.= ' AND ac.ACP_Type = 1';
 		$sql.= ' AND ac.ACP_Champ = 1';
-		$sql.= ' AND a.AR_DateModif > \''.date('Y-d-m', strtotime('-2days')).'\' ';
+		$sql.= ' AND a.AR_DateModif > \''.date('Y-d-m', $time).'\' ';
 		
 		return $sql;
 	}
