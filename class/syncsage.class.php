@@ -78,11 +78,13 @@ class TSyncSage {
 		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTENUMREF', 'ae');
 		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTGAMME', 'ag1');
 		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTGAMME', 'ag2');
+		$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTPRIX', 'ap');
 		//$sql.= ', ' . $this->sagedb->Get_column_list('F_ARTCOMPTA', 'ac');
 		$sql.= ' FROM F_ARTICLE a';
 		$sql.= ' LEFT JOIN F_ARTENUMREF ae ON (ae.AR_Ref = a.AR_Ref)';
 		$sql.= ' LEFT JOIN F_ARTGAMME ag1 ON (ag1.AG_No = ae.AG_No1)';
 		$sql.= ' LEFT JOIN F_ARTGAMME ag2 ON (ag2.AG_No = ae.AG_No2)';
+		$sql.= ' LEFT JOIN F_ARTPRIX ap ON (ap.AG_No1 = ag1.AG_No AND ap.AG_No2 = ag2.AG_No)';
 		//$sql.= ' LEFT JOIN F_ARTCOMPTA ac ON (ac.AR_Ref = a.AR_Ref)';
 		$sql.= ' WHERE 1 = 1';
 		//$sql.= ' AND ac.ACP_Type = 1';
@@ -303,7 +305,7 @@ class TSyncSage {
 					,'status'			=> ($dataline['a.AR_Sommeil'] || $dataline['ae.AE_Sommeil']) ? 0 : 1
 					,'status_buy'		=> ($dataline['a.AR_Sommeil'] || $dataline['ae.AE_Sommeil']) ? 0 : 1
 					,'price'			=> $dataline['a.AR_PrixVen']
-					,'cost_price'		=> $dataline['ae.AE_PrixAch']
+					,'cost_price'		=> $dataline['ap.AR_CoutStd']
 					//,'accountancy_code_buy'		=> $dataline['ac.ACP_ComptaCPT_CompteG']
 					,'category'			=> $dataline['a.FA_CodeFamille']
 					,'pmp'				=> $dataline['a.AR_CMUP']
