@@ -45,6 +45,7 @@ class CronSage {
 		// On synchronise d'abord les catégorie de produit
 		$sync->sync_category_from_sage();
 		$sync->sync_product_from_sage($time);
+		$sync->sync_pmp_from_sage($time);
 		
 		return 0;
 	}

@@ -112,7 +112,7 @@ class TSyncSage {
 	/*
 	 * Construction de la requête SQL pour récupérer les valeurs de stock dans Sage 
 	 */
-	function get_sql_pmp_sage() {
+	function get_sql_pmp_sage($time) {
 		global $conf;
 		
 		$sql = 'SELECT ';
@@ -121,6 +121,7 @@ class TSyncSage {
 		$sql.= ' WHERE 1 = 1';
 		$sql.= ' AND gs.QteSto > 0';
 		$sql.= ' AND gs.De_No = 2';
+		$sql.= ' AND gs.cbModification > \''.date('Y-d-m', $time).'\' ';
 		
 		return $sql;
 	}
