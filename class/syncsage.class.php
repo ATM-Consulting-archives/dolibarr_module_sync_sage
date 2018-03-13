@@ -119,7 +119,7 @@ class TSyncSage {
 		$sql.= $this->sagedb->Get_column_list('F_GAMSTOCK', 'gs');
 		$sql.= ' FROM F_GAMSTOCK gs';
 		$sql.= ' WHERE 1 = 1';
-		$sql.= ' AND gs.QteSto > 0';
+		$sql.= ' AND gs.GS_QteSto > 0';
 		$sql.= ' AND gs.De_No = 2';
 		$sql.= ' AND gs.cbModification > \''.date('Y-d-m', $time).'\' ';
 		
