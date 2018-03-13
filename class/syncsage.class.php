@@ -92,6 +92,37 @@ class TSyncSage {
 		return $sql;
 	}
 	
+	/*
+	 * Fonction générale de synchro produit
+	 */
+	function sync_pmp_from_sage($time) {
+		$sql = $this->get_sql_pmp_sage($time);
+		$this->sagedb->Execute($sql);
+		
+		while($dataline = $this->sagedb->Get_line(PDO::FETCH_ASSOC)) {
+			$data = $this->construct_array_data('pmp', $dataline);
+			$this->update_pmp_in_dolibarr($data);
+		}
+		
+		return 0;
+	}
+	
+	/*
+	 * Construction de la requête SQL pour récupérer les valeurs de stock dans Sage 
+	 */
+	function get_sql_pmp_sage() {
+		global $conf;
+		
+		$sql = 'SELECT ';
+		$sql.= $this->sagedb->Get_column_list('F_GAMSTOCK', 'gs');
+		$sql.= ' FROM F_GAMSTOCK gs';
+		$sql.= ' WHERE 1 = 1';
+		$sql.= ' AND gs.QteSto > 0';
+		$sql.= ' AND gs.De_No = 2';
+		
+		return $sql;
+	}
+	
 	/**
 	 * Fonction générale d'import des sorties de stock
 	 */
@@ -245,8 +276,10 @@ class TSyncSage {
 	function get_sql_mouvements_stock_dolibarr($time) {
 		global $conf;
 		
-		$sql = 'SELECT p.rowid, DATE(m.datem) as datem, pext.ref_sage, pext.gam1_sage, pext.gam2_sage, SUM(m.value) as qty ';
+		$sql = 'SELECT p.rowid, DATE(m.datem) as datem, pext.ref_sage, pext.gam1_sage, pext.gam2_sage, ';
+		$sql.= 'SUM(m.value) as qty, e.label as entrepot ';
 		$sql.= 'FROM '.MAIN_DB_PREFIX.'stock_mouvement m ';
+		$sql.= 'LEFT JOIN '.MAIN_DB_PREFIX.'entrepot e ON (e.rowid = m.fk_entrepot) ';
 		$sql.= 'LEFT JOIN '.MAIN_DB_PREFIX.'product p ON (p.rowid = m.fk_product) ';
 		$sql.= 'LEFT JOIN '.MAIN_DB_PREFIX.'product_extrafields pext ON (p.rowid = pext.fk_object) ';
 		$sql.= 'WHERE DATE(m.datem) = \''. date('Y-m-d', $time) .'\' ';
@@ -273,6 +306,7 @@ class TSyncSage {
 					,'cost_price'		=> $dataline['ae.AE_PrixAch']
 					,'accountancy_code_buy'		=> $dataline['ac.ACP_ComptaCPT_CompteG']
 					,'category'			=> $dataline['a.FA_CodeFamille']
+					,'pmp'				=> $dataline['a.AR_CMUP']
 					,'array_options'	=> array(
 						'options_ref_sage'			=> $dataline['a.AR_Ref']
 						,'options_gam1_sage'		=> $dataline['ag1.EG_Enumere']
@@ -334,7 +368,16 @@ class TSyncSage {
 					,'gam1'		=> !empty($dataline['gam1_sage']) ? $dataline['gam1_sage'] : ''
 					,'gam2'		=> !empty($dataline['gam2_sage']) ? $dataline['gam2_sage'] : ''
 					,'qty'		=> abs($dataline['qty'])
-					,'ent'		=> 'POLYPAP'
+					,'ent'		=> $dataline['entrepot']
+				);
+				break;
+				
+			case 'pmp':
+				
+				$data = array(
+					'ref'		=> $this->build_product_ref($dataline)
+					,'qty'		=> $dataline['GS_QteSto']
+					,'pmp'		=> round($dataline['GS_MontSto'] / $dataline['GS_QteSto'],2)
 				);
 				break;
 				
@@ -535,5 +578,24 @@ class TSyncSage {
 		}
 		
 		echo '<br>OK Init stock '.$data['ref'].', qty '.$data['qty'];
+	}
+
+	/**
+	 * Mise à jour du PMP produit dans Dolibarr
+	 */
+	function update_pmp_in_dolibarr($data) {
+		global $db, $langs, $user;
+		
+		$sql = 'UPDATE '.MAIN_DB_PREFIX.'product SET pmp = '.$data['pmp'].' ';
+		$sql.= 'WHERE ref = \''.$data['ref'].'\'';
+		
+		$result = $db->query($sql);
+			
+		if($result <= 0){
+			echo '<br>ERR '.$data['ref'].', pmp '.$data['pmp'];
+			return 0;
+		}
+		
+		echo '<br>OK '.$data['ref'].', pmp '.$data['pmp'];
 	}
 }
