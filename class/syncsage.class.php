@@ -305,7 +305,7 @@ class TSyncSage {
 					,'status'			=> ($dataline['a.AR_Sommeil'] || $dataline['ae.AE_Sommeil']) ? 0 : 1
 					,'status_buy'		=> ($dataline['a.AR_Sommeil'] || $dataline['ae.AE_Sommeil']) ? 0 : 1
 					,'price'			=> $dataline['a.AR_PrixVen']
-					,'cost_price'		=> $dataline['ap.AR_CoutStd']
+					,'cost_price'		=> !empty($dataline['ap.AR_CoutStd']) ? $dataline['ap.AR_CoutStd'] : $dataline['ae.AE_PrixAch'] 
 					//,'accountancy_code_buy'		=> $dataline['ac.ACP_ComptaCPT_CompteG']
 					,'category'			=> $dataline['a.FA_CodeFamille']
 					,'pmp'				=> $dataline['a.AR_CMUP']
