@@ -117,10 +117,10 @@ class TSyncSage {
 		
 		$sql = 'SELECT ';
 		$sql.= ' gs.AR_Ref, gs.AG_No1, gs.AG_No2,';
-		$sql.= ' SUM(gs.MontSto) / SUM(gs.GS_QteSto) as gs.CMUP';
+		$sql.= ' SUM(gs.GS_MontSto) / SUM(gs.GS_QteSto) as CMUP';
 		$sql.= ' FROM F_GAMSTOCK gs';
 		$sql.= ' WHERE 1 = 1';
-		//$sql.= ' AND gs.GS_QteSto > 0';
+		$sql.= ' AND gs.GS_QteSto > 0';
 		//$sql.= ' AND gs.De_No = 2';
 		$sql.= ' AND gs.cbModification > \''.date('Y-d-m', $time).'\' ';
 		$sql.= ' GROUP BY gs.AR_Ref, gs.AG_No1, gs.AG_No2';
