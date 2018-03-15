@@ -95,7 +95,7 @@ class TSyncSage {
 	}
 	
 	/*
-	 * Fonction générale de synchro produit
+	 * Fonction générale de synchro PMP
 	 */
 	function sync_pmp_from_sage($time) {
 		$sql = $this->get_sql_pmp_sage($time);
@@ -116,12 +116,14 @@ class TSyncSage {
 		global $conf;
 		
 		$sql = 'SELECT ';
-		$sql.= $this->sagedb->Get_column_list('F_GAMSTOCK', 'gs');
+		$sql.= ' gs.AR_Ref, gs.AG_No1, gs.AG_No2,';
+		$sql.= ' SUM(gs.MontSto) / SUM(gs.GS_QteSto) as gs.CMUP';
 		$sql.= ' FROM F_GAMSTOCK gs';
 		$sql.= ' WHERE 1 = 1';
-		$sql.= ' AND gs.GS_QteSto > 0';
-		$sql.= ' AND gs.De_No = 2';
+		//$sql.= ' AND gs.GS_QteSto > 0';
+		//$sql.= ' AND gs.De_No = 2';
 		$sql.= ' AND gs.cbModification > \''.date('Y-d-m', $time).'\' ';
+		$sql.= ' GROUP BY gs.AR_Ref, gs.AG_No1, gs.AG_No2';
 		
 		return $sql;
 	}
@@ -378,9 +380,8 @@ class TSyncSage {
 			case 'pmp':
 				
 				$data = array(
-					'ref'		=> $this->build_product_ref($dataline)
-					,'qty'		=> $dataline['GS_QteSto']
-					,'pmp'		=> round($dataline['GS_MontSto'] / $dataline['GS_QteSto'],2)
+					'ref'		=> $this->build_product_ref($dataline, 'gs', 'gs')
+					,'pmp'		=> round($dataline['CMUP'],2)
 				);
 				break;
 				
